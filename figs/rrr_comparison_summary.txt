@@ -1,0 +1,9 @@
+Runtime-matched RrhoR comparison (n=4, p=0.06, Ns=4096, 14 trials)
+SSP wall time 0.165 ms | RrhoR per-iter 3.819 ms | RM iters 1
+r=1: LS=0.8825 SSP=0.9997 RrR-RM=0.0696 RrR-conv=0.9361 iters=400 t_conv=1.568s
+r=2: LS=0.8923 SSP=0.9801 RrR-RM=0.1144 RrR-conv=0.9233 iters=400 t_conv=1.565s
+r=3: LS=0.9005 SSP=0.9931 RrR-RM=0.1677 RrR-conv=0.9084 iters=400 t_conv=1.549s
+r=4: LS=0.9090 SSP=0.9874 RrR-RM=0.2184 RrR-conv=0.9001 iters=400 t_conv=1.532s
+r=5: LS=0.9158 SSP=0.9778 RrR-RM=0.2729 RrR-conv=0.8973 iters=400 t_conv=1.497s
+r=6: LS=0.9241 SSP=0.9646 RrR-RM=0.3127 RrR-conv=0.8973 iters=400 t_conv=1.596s
+r=7: LS=0.9325 SSP=0.9412 RrR-RM=0.3724 RrR-conv=0.8994 iters=400 t_conv=1.571s

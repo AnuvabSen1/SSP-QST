@@ -1,133 +1,95 @@
-# SSP-QST: Spectral Subspace Purification for Photonic Quantum State Tomography
+# SSP-QST Codebase — QCE26 Paper QPHO-981
+## SSP-QST: Spectral Subspace Purification for Photonic Quantum State Tomography
+### Anuvab Sen, Saibal Mukhopadhyay | Georgia Tech | asen74@gatech.edu
 
-Official code for the IEEE QCE26 (IEEE Quantum Week 2026) Technical Paper:
+## AUTHORITATIVE SCRIPT (produces all camera-ready figures and tables)
+    pip install numpy scipy matplotlib
+    python make_professional_figures.py
 
-> **SSP-QST: Spectral Subspace Purification for Photonic Quantum State Tomography**
-> IEEE International Conference on Quantum Computing and Engineering (QCE), 2026. Paper ID QPHO-981.
+Runtime approximately 10-20 minutes. Outputs to ./figs/ (paths are
+script-relative). Fonts are set to 11pt axes / 10pt ticks-legend per the
+camera-ready (Reviewer 2 request); figure data is unaffected by font
+settings and reproduces the results summary byte-for-byte. All randomness is
+deterministically seeded; re-running reproduces figs/selected_results_summary.txt
+byte-for-byte, which matches the camera-ready paper:
+- Table II fidelity vs rank (n=4, p=0.06, Ns=4096), all rows
+- Max gain +0.584 over top-eigenvector at rank 7 (0.9412 - 0.3576)
+- Max gain +0.051 over spectral squaring at rank 4 (0.9874 - 0.9368)
+- >= 8x photon budget: SSP at Ns=512 (0.956) beats LS at Ns=4096 (0.890)
+- Table IV threshold ablation reproduced from a single rank-3 reference target
+  (default and p_hat/d: rank 3, F = 0.997; p_hat/(2d): rank 4, F ~ 0.97)
 
-SSP-QST is a closed-form, rank-adaptive post-processing layer for least-squares quantum state tomography. It eigendecomposes the LS estimate, computes a Weyl-perturbation noise floor directly from the measured spectrum, applies a rank-1 override, truncates sub-floor eigenmodes, and renormalises. One eigendecomposition, O(d^3), no rank prior, no iteration.
 
-```
-eps_th = p_hat / (d - 1) + 0.5 / sqrt(N_s),   p_hat = max(0, 1 - lambda_max)
-```
+## rrr_comparison.py (runtime-matched iterative ML comparison)
+    python rrr_comparison.py
+Runs the RrhoR (Rehacek-Hradil) maximum-likelihood iteration on the identical
+measurement record, seeds, and targets as Table II (n=4, p=0.06, Ns=4096).
+Reproduces the paper's "Runtime-Matched Comparison with Iterative Maximum
+Likelihood" subsection: SSP wall time 0.16 ms vs 4.0 ms per RrhoR iteration
+(runtime-matched budget admits at most 1 iteration, fidelity 0.07-0.37);
+400 iterations (~1.5 s, ~1e4x compute) reach mean fidelity 0.90-0.94,
+below SSP-QST at every rank and below projected LS for ranks >= 4.
+Output: figs/rrr_comparison_summary.txt
 
-## Headline results (n = 4, p = 0.06, N_s = 4096)
+## rrr_comparison.py (runtime-matched iterative-ML comparison)
+    python rrr_comparison.py            # undiluted RrhoR, two budgets
+    python rrr_comparison.py --diluted  # step-size-optimised diluted variant
+Reproduces the paper's "Runtime-Matched Comparison with Iterative Maximum
+Likelihood" subsection at the exact Table II configuration (n=4, p=0.06,
+Ns=4096, identical seeds). Verified output: SSP median wall time ~0.16 ms,
+one RrhoR iteration ~4 ms; runtime-matched budget admits 1 iteration
+(fidelity 0.07-0.37 across ranks); converged 400-iteration RrhoR reaches
+0.936, 0.923, 0.908, 0.900, 0.897, 0.897, 0.899 at ranks 1-7, trailing
+SSP-QST at every rank. The --diluted mode runs the line-searched diluted
+iteration (eps in {0.5,1,2,5} per step): it converges to the same fixed
+point as undiluted RrhoR (mean fidelities within 1e-3 at every rank,
+figs/rrr_diluted_summary.txt), confirming the gap to SSP-QST is a
+property of the unregularised ML estimate, not incomplete convergence.
+Wall times are machine-dependent; fidelities are deterministic.
 
-| Rank r | LS-QST | Spectral Squaring | Top Eigenvector | SSP-QST |
-|-------:|-------:|------------------:|----------------:|--------:|
-| 1 | 0.883 | 0.997 | 1.000 | **1.000** |
-| 2 | 0.892 | 0.972 | 0.777 | **0.980** |
-| 3 | 0.901 | 0.957 | 0.588 | **0.993** |
-| 4 | 0.909 | 0.937 | 0.520 | **0.987** |
-| 5 | 0.916 | 0.940 | 0.420 | **0.978** |
-| 6 | 0.924 | 0.929 | 0.412 | **0.965** |
-| 7 | 0.933 | 0.926 | 0.358 | **0.941** |
+## verify_bounds.py (theoretical-bound verification)
+    python verify_bounds.py
+Reproduces the two bound checks quoted in the paper's threshold-scope
+discussion: (1) the amplitude-damping envelope, elementary diamond-norm
+bound gamma + 2a + a^2 <= 2 gamma (1+gamma) with a = 1 - sqrt(1-gamma)
+(exact identity 2a - a^2 = gamma; numeric diamond norm = 2 gamma), full
+n-qubit shifts observed within n gamma; (2) the matrix-Bernstein
+envelope sqrt(2 ln(2d)/Ns) = 0.041 and the margin ablation (rank-7
+fidelity 0.941 -> 0.786 if the worst case replaces 0.5/sqrt(Ns)).
 
-- Highest fidelity among tested non-iterative methods at every probe rank, with gains up to +0.584 over top-eigenvector extraction and +0.051 over spectral squaring.
-- At least 8x photon-budget reduction: SSP-QST at N_s = 512 (F = 0.956) exceeds LS-QST at N_s = 4096 (F = 0.890).
-- Runtime-matched against iterative maximum likelihood: the entire SSP-QST step (~0.16 ms) costs less than one R-rho-R iteration (~4 ms); 400 iterations (~10^4x compute) still trail SSP-QST at every rank.
-- Exact rank identification for all ranks 2 through 6 at p <= 0.10 (20/20 trials per point).
+## legacy/ (earlier development versions, included for provenance)
+- legacy/v4/ssp_qst_core.py    Qiskit Aer pipeline: GHZ circuits, photonic-
+                               inspired noise models (depolarizing, amplitude
+                               damping, phase damping), LS-QST, SSP purification,
+                               parameter-shift feedback controller.
+                               Requires: pip install qiskit qiskit-aer
+                               (verified working on Qiskit 2.5.1 + Aer 0.17.2)
+- legacy/v5/rank_experiments.py  n=3 rank-sweep experiments built on the v4 core.
+                               Edit the sys.path.insert line to point at the
+                               directory containing ssp_qst_core.py before running.
 
-## Installation
-
-```bash
-pip install numpy scipy matplotlib
-```
-
-Optional, for the legacy Qiskit pipeline only:
-
-```bash
-pip install qiskit qiskit-aer   # verified on Qiskit 2.5.1 + Aer 0.17.2
-```
-
-## Quickstart
-
-Reproduce every figure and table in the paper (deterministic seeds, byte-for-byte):
-
-```bash
-python make_professional_figures.py     
-```
-
-Reproduce the iterative-ML comparison:
-
-```bash
-python rrr_comparison.py               
-python rrr_comparison.py --diluted      
-```
-
-Verify the theoretical bounds quoted in the paper:
-
-```bash
-python verify_bounds.py                
-```
-
-## Repository structure
-
-```
-.
-├── make_professional_figures.py   # Authoritative script: all paper figures and tables
-├── rrr_comparison.py              # RrhoR maximum-likelihood comparison (+ --diluted mode)
-├── verify_bounds.py               # Amplitude-damping envelope and matrix-Bernstein checks
-├── figs/
-│   ├── selected_results_summary.txt   # Verified numerical summary (matches the paper)
-│   ├── rrr_comparison_summary.txt
-│   └── rrr_diluted_summary.txt
-└── legacy/
-    ├── v4/ssp_qst_core.py         # Earlier Qiskit Aer pipeline (GHZ circuits, Kraus noise)
-    └── v5/rank_experiments.py     # Earlier n = 3 rank-sweep experiments
-```
-
-## Minimal usage
-
-```python
-import numpy as np
-
-def ssp_qst(rho_ls, Ns):
-    d = rho_ls.shape[0]
-    vals, vecs = np.linalg.eigh((rho_ls + rho_ls.conj().T) / 2)
-    vals = np.maximum(vals, 0.0)
-    p_hat = max(0.0, 1.0 - vals[-1])
-    eps = p_hat / (d - 1) + 0.5 / np.sqrt(Ns)
-    if vals[-2] < 2 * eps:                      # rank-1 override
-        v = vecs[:, -1]
-        return np.outer(v, v.conj())
-    vals = np.where(vals > eps, vals, 0.0)
-    vals /= vals.sum()
-    return (vecs * vals) @ vecs.conj().T
-```
+## Reconciliation note (legacy vs camera-ready)
+The v4/v5 legacy code uses the SAME noise-floor threshold as the paper,
+eps = p_hat/(d-1) + 0.5/sqrt(Ns), but PRE-DATES the rank-1 override step
+(Algorithm 1, line 6: if lambda_{d-1} < 2*eps return top eigenvector).
+Consequently legacy rank-1 fidelities (~0.95) are lower than the camera-ready
+Table II rank-1 value (1.000); adding the override closes exactly that gap.
+Legacy experiments are also n=3 at p=0.08, while all camera-ready results are
+n=4 (make_professional_figures.py). The legacy runs still show the paper's
+qualitative claims: SSP-QST wins at every mixed rank r=2,3,4 where rank-1
+purification collapses (e.g. n=3: r=2 SSP 0.994 vs TopEig 0.635, r=3 SSP 0.984
+vs 0.473, r=4 SSP 0.968 vs 0.451).
 
 ## Key functions (make_professional_figures.py)
+- random_rank_state(n, r, seed)   Haar frame (Ginibre + QR) x Dirichlet(1,...,1)
+- ls_qst_from_state(...)          LS-QST, analytic Bernoulli shot noise (Eq. 3-4)
+- ssp_qst(rho_ls, Ns)             Algorithm 1: eigh, Weyl noise floor, rank-1
+                                  override, threshold, renormalise
+- spectral_squaring, top_eigvec   Non-iterative baselines
+- qfi(rho, H)                     Quantum Fisher information (Eq. 5)
+- physical_structured_ghz(...)    Leakage/dephasing/crosstalk GHZ (Fig. 6b)
+- compute_closed_loop(...)        Parameter-shift feedback (Fig. 6c)
 
-| Function | Role |
-|---|---|
-| `random_rank_state(n, r, seed)` | Haar frame (Ginibre + QR) with flat Dirichlet weights |
-| `ls_qst_from_state(...)` | LS-QST with analytic Bernoulli shot noise |
-| `ssp_qst(rho_ls, Ns)` | Algorithm 1: Weyl noise floor, rank-1 override, truncate, renormalise |
-| `spectral_squaring`, `top_eigvec` | Non-iterative baselines |
-| `qfi(rho, H)` | Quantum Fisher information |
-| `physical_structured_ghz(...)` | GHZ probes with leakage, dephasing, crosstalk |
-| `compute_closed_loop(...)` | Parameter-shift feedback simulation |
-
-All figure annotations are computed from the plotted data at render time; nothing is hardcoded.
-
-## Reproducibility notes
-
-- All randomness is deterministically seeded. Rerunning `make_professional_figures.py` regenerates `figs/selected_results_summary.txt` byte-for-byte.
-- The legacy `v4`/`v5` code uses the same threshold but predates the rank-1 override of Algorithm 1, so its rank-1 fidelities (~0.95) sit below the camera-ready value (1.000). Legacy experiments are n = 3 at p = 0.08; all paper results are n = 4. Point the `sys.path.insert` line in `v5/rank_experiments.py` at the directory containing `ssp_qst_core.py` before running.
-- Wall times in the ML comparison are machine dependent; all fidelities are deterministic.
-
-## Citation
-
-```bibtex
-@inproceedings{sen2026sspqst,
-  author    = {Sen, Anuvab and Mukhopadhyay, Saibal},
-  title     = {{SSP-QST}: Spectral Subspace Purification for Photonic Quantum State Tomography},
-  booktitle = {IEEE International Conference on Quantum Computing and Engineering (QCE)},
-  year      = {2026}
-}
-```
-
-## Contact
-
-Anuvab Sen, asen74@gatech.edu
-GREEN Lab, School of Electrical and Computer Engineering, Georgia Institute of Technology
+## Note on figE
+figE_additional_validation_improved.pdf in the paper is a styling pass over
+figE_additional_validation from this script; data and panels are identical.

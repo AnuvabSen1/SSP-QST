@@ -1,0 +1,8 @@
+Diluted line-searched RrhoR (n=4, p=0.06, Ns=4096, 14 trials)
+r=1: SSP=0.9997 DilRrR=0.9361 iters=400 t=0.318s
+r=2: SSP=0.9801 DilRrR=0.9233 iters=400 t=0.342s
+r=3: SSP=0.9931 DilRrR=0.9084 iters=400 t=0.357s
+r=4: SSP=0.9874 DilRrR=0.9001 iters=400 t=0.328s
+r=5: SSP=0.9778 DilRrR=0.8972 iters=400 t=0.324s
+r=6: SSP=0.9646 DilRrR=0.8973 iters=400 t=0.317s
+r=7: SSP=0.9412 DilRrR=0.8994 iters=400 t=0.344s

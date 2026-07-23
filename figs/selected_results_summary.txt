@@ -1,0 +1,29 @@
+Representative results where SSP-QST is the best-performing method
+===============================================================
+
+Fidelity vs rank (n=4, p=0.06, Ns=4096)
+r=1: LS=0.8825, Sq=0.9969, Top=0.9997, SSP=0.9997
+r=2: LS=0.8923, Sq=0.9720, Top=0.7766, SSP=0.9801
+r=3: LS=0.9005, Sq=0.9569, Top=0.5876, SSP=0.9931
+r=4: LS=0.9090, Sq=0.9368, Top=0.5195, SSP=0.9874
+r=5: LS=0.9158, Sq=0.9403, Top=0.4202, SSP=0.9778
+r=6: LS=0.9241, Sq=0.9289, Top=0.4125, SSP=0.9646
+r=7: LS=0.9325, Sq=0.9256, Top=0.3576, SSP=0.9412
+
+QFI recovery at rank 3 (agreement score):
+LS-QST: 0.8929
+Spec. Sq.: 0.9401
+Top Eigvec.: 0.8399
+SSP-QST: 0.9874
+
+Shot efficiency at Ns=512 (rank 3, p=0.08):
+LS-QST: 0.7786
+Spec. Sq.: 0.9273
+Top Eigvec.: 0.5593
+SSP-QST: 0.9560
+
+Structured GHZ fidelity at crosstalk=0.06:
+LS-QST: 0.9268
+Spec. Sq.: 0.9242
+Top Eigvec.: 0.8702
+SSP-QST: 0.9460
