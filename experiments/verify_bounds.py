@@ -19,7 +19,7 @@ quoted in the QCE26 camera-ready (Section: threshold derivation scope).
    operational margin 0.5/sqrt(Ns) in the threshold over-truncates
    (rank-7 mean fidelity 0.941 -> 0.786 at the Table II configuration).
 
-Run: python verify_bounds.py     (deterministic; ~1-2 minutes)
+Run (from the repo root): python experiments/verify_bounds.py   (~1-2 min, deterministic)
 """
 import numpy as np
 
@@ -97,12 +97,9 @@ def check_bernstein(n=4, Ns=4096, p=0.06):
     print(f"\nBernstein envelope sqrt(2 ln(2d)/Ns) = {bern:.4f}; "
           f"operational margin 0.5/sqrt(Ns) = {0.5/np.sqrt(Ns):.4f}")
 
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("rrr", "rrr_comparison.py")
-    rrr = importlib.util.module_from_spec(spec)
-    import sys
-    sys.argv = ["verify"]
-    spec.loader.exec_module(rrr)
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+    import ssp_qst as rrr  # provides random_rank_state, ls_qst_from_state, depolarize, fidelity
 
     def ssp_margin(rho_ls, margin):
         vals, vecs = np.linalg.eigh((rho_ls + rho_ls.conj().T) / 2)
