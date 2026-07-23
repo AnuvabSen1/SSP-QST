@@ -3,8 +3,6 @@
 Official code for the IEEE QCE26 (IEEE Quantum Week 2026) Technical Paper:
 
 > **SSP-QST: Spectral Subspace Purification for Photonic Quantum State Tomography**
-> Anuvab Sen, Saibal Mukhopadhyay
-> Georgia Institute of Technology
 > IEEE International Conference on Quantum Computing and Engineering (QCE), 2026. Paper ID QPHO-981.
 
 SSP-QST is a closed-form, rank-adaptive post-processing layer for least-squares quantum state tomography. It eigendecomposes the LS estimate, computes a Weyl-perturbation noise floor directly from the measured spectrum, applies a rank-1 override, truncates sub-floor eigenmodes, and renormalises. One eigendecomposition, O(d^3), no rank prior, no iteration.
@@ -47,20 +45,20 @@ pip install qiskit qiskit-aer   # verified on Qiskit 2.5.1 + Aer 0.17.2
 Reproduce every figure and table in the paper (deterministic seeds, byte-for-byte):
 
 ```bash
-python make_professional_figures.py     # ~10-20 min, outputs to ./figs/
+python make_professional_figures.py     
 ```
 
 Reproduce the iterative-ML comparison:
 
 ```bash
-python rrr_comparison.py                # undiluted RrhoR, runtime-matched and converged budgets
-python rrr_comparison.py --diluted      # step-size-optimised diluted variant
+python rrr_comparison.py               
+python rrr_comparison.py --diluted      
 ```
 
 Verify the theoretical bounds quoted in the paper:
 
 ```bash
-python verify_bounds.py                 # ~1-2 min
+python verify_bounds.py                
 ```
 
 ## Repository structure
